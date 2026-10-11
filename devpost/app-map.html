@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCOPELOCK App Map</title>
+<style>
+  :root { --bg:#f7f7f5; --surface:#fff; --ink:#1b1d1f; --muted:#5f656b; --line:#dcdcd7; --green:#2f7a4f; --amber:#9a6a12; --red:#b0392f; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#141516; --surface:#1d1f21; --ink:#e8e8e5; --muted:#a3a8ad; --line:#34373a; --green:#5fb184; --amber:#d4a24c; --red:#e07a70; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .04em; }
+  h2 { font-size: 16px; margin: 32px 0 8px; }
+  p, li { max-width: 72ch; }
+  .muted { color: var(--muted); }
+  code { font-family: var(--mono); font-size: 13px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 18px; margin: 10px 0; }
+  ol.route > li { margin-bottom: 14px; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { font: 12px system-ui, sans-serif; fill: var(--ink); }
+  svg .m { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  svg rect { fill: var(--surface); stroke: var(--line); }
+  svg .kernel { stroke: var(--green); stroke-width: 1.5; }
+  svg line, svg path { stroke: var(--muted); fill: none; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  td, th { text-align: left; border-bottom: 1px solid var(--line); padding: 6px 8px; vertical-align: top; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; color: var(--muted); }
+  pre { font-family: var(--mono); font-size: 12.5px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>SCOPELOCK · App Map</h1>
+  <p class="muted">A snapshot of the code at commit <code>f91074e</code> (end of the build). The code can drift from this map later; if a path or symbol has moved, search for the symbol names.</p>
+
+  <h2>What it does</h2>
+  <p>You paste a planning contract and one proposed diff. Claude proposes a verdict (Aligned, Conflict or Unplanned) with one piece of evidence: a quote and the heading path it claims the quote sits under. Deterministic code then checks that the quote is one complete planning line under exactly that path. If the check fails, the verdict becomes Unplanned. <strong>The model interprets; the verifier decides what counts as evidence.</strong></p>
+
+  <h2>One action: pressing Check Alignment</h2>
+  <svg viewBox="0 0 860 250" role="img" aria-label="Diagram: Check Alignment flows from the page to the server, then to the model and the verifier, and the final result returns to the page.">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" style="stroke:var(--muted)"/></marker></defs>
+    <rect x="10" y="85" width="170" height="70" rx="6"/>
+    <text x="95" y="110" text-anchor="middle" font-weight="600">Page</text>
+    <text x="95" y="128" text-anchor="middle" class="m">public/state.js · reduce</text>
+    <text x="95" y="143" text-anchor="middle" class="m">public/app.js · send</text>
+
+    <rect x="240" y="85" width="170" height="70" rx="6"/>
+    <text x="325" y="110" text-anchor="middle" font-weight="600">Server + orchestrator</text>
+    <text x="325" y="128" text-anchor="middle" class="m">server.js · /api/check</text>
+    <text x="325" y="143" text-anchor="middle" class="m">src/check.js · runCheck</text>
+
+    <rect x="490" y="15" width="200" height="70" rx="6"/>
+    <text x="590" y="40" text-anchor="middle" font-weight="600">Model adapter → Claude</text>
+    <text x="590" y="58" text-anchor="middle" class="m">src/model.js · propose</text>
+    <text x="590" y="73" text-anchor="middle" class="m">proposes verdict + evidence</text>
+
+    <rect x="490" y="155" width="200" height="70" rx="6" class="kernel"/>
+    <text x="590" y="180" text-anchor="middle" font-weight="600">Verifier (no AI)</text>
+    <text x="590" y="198" text-anchor="middle" class="m">src/verify.js · verifyEvidence</text>
+    <text x="590" y="213" text-anchor="middle" class="m">src/markdown-blocks.js · parsePlan</text>
+
+    <rect x="740" y="85" width="110" height="70" rx="6"/>
+    <text x="795" y="110" text-anchor="middle" font-weight="600">Result</text>
+    <text x="795" y="128" text-anchor="middle" class="m">resultView</text>
+    <text x="795" y="143" text-anchor="middle" class="m">verdict · evidence</text>
+
+    <line x1="180" y1="120" x2="238" y2="120" marker-end="url(#a)"/>
+    <path d="M410,108 C450,80 460,55 488,50" marker-end="url(#a)"/>
+    <path d="M410,132 C450,160 460,185 488,190" marker-end="url(#a)"/>
+    <path d="M690,190 C720,180 730,150 738,140" marker-end="url(#a)"/>
+    <text x="440" y="70" class="m">1 · propose</text>
+    <text x="440" y="182" class="m">2 · verify</text>
+    <text x="700" y="215" class="m">3 · accept or downgrade</text>
+  </svg>
+
+  <h2>Reference route (3 stops)</h2>
+  <p class="muted">A reference route through the finished code; it wasn't toured interactively.</p>
+  <ol class="route">
+    <li><strong><code>public/state.js</code> → <code>reduce</code>, case <code>"check"</code>.</strong> Empty panes return <code>request: null</code> and the Not checked state, so nothing is sent. Otherwise the state becomes <code>checking</code>, which locks the inputs, and the exact snapshot to send is returned. <code>app.js</code> → <code>dispatch</code> / <code>send</code> does the actual <code>fetch</code>.</li>
+    <li><strong><code>src/check.js</code> → <code>runCheck</code>.</strong> Calls <code>model.propose</code>. Any throw becomes <code>check_failed</code>. A structurally impossible proposal (Aligned or Conflict without evidence, or Unplanned with evidence) is rejected, never repaired. Valid evidence goes to the verifier, and only a verifier rejection turns the verdict into <code>unplanned</code> with an <code>evidenceCheck</code>.</li>
+    <li><strong><code>src/verify.js</code> → <code>verifyEvidence</code>.</strong> Normalizes whitespace only. The quote must equal one entire block from <code>parsePlan</code>, and that block's heading path must equal the claimed path exactly. The result is <code>quote_not_found</code>, <code>wrong_path</code> (with the paths where the quote was actually found), or <code>ok</code>.</li>
+  </ol>
+
+  <h2>To change this, start here</h2>
+  <table>
+    <tr><th>You want to change…</th><th>Start at</th></tr>
+    <tr><td>How Claude is instructed (verdict rules, quoting rules, the worked example)</td><td><code>src/model.js</code> → <code>SYSTEM_PROMPT</code>; then re-run <code>npm run smoke</code></td></tr>
+    <tr><td>The model or its output shape</td><td><code>ANTHROPIC_MODEL</code> in <code>.env</code>; <code>src/model.js</code> → <code>PROPOSAL_SCHEMA</code>, <code>proposalFormat</code>, <code>readProposal</code></td></tr>
+    <tr><td>What counts as a citable block or a heading</td><td><code>src/markdown-blocks.js</code> → <code>parsePlan</code> (rules are pinned by <code>test/markdown-blocks.test.js</code>)</td></tr>
+    <tr><td>Result wording, rejection copy, state transitions</td><td><code>public/state.js</code> → <code>resultView</code>, <code>evidenceCheckView</code>, <code>reduce</code> (pinned by <code>test/state.test.js</code>)</td></tr>
+    <tr><td>Sample plan and diff</td><td><code>public/sample.js</code> (also used by the tests and the smoke cases)</td></tr>
+    <tr><td>Colors, spacing, pane height</td><td><code>public/styles.css</code> (tokens in <code>:root</code>)</td></tr>
+  </table>
+
+  <h2>A practice to reuse</h2>
+  <div class="card">
+    <p><strong>Test the contract where it crosses a library boundary, not just your own code.</strong></p>
+    <p>The spec required the output schema itself to tie evidence to the verdict: Aligned or Conflict must carry evidence, and Unplanned must carry null. A test that asserts that observable property on what is actually sent (<code>test/check.test.js</code> → "schema reaches the API with both branches enforced") showed that the SDK's default schema transform turned <code>enum</code>/<code>const</code> into description text. Nothing failed at runtime, and the defensive check in <code>readProposal</code> would have hidden the gap. The fix was one documented option (<code>transform: false</code>), recorded under Revisions in <code>devpost/checklist.md</code>, with no product change.</p>
+    <p>On another project: when the plan states a guarantee that a dependency is supposed to provide, write one check against the dependency's real output. A compatibility probe right after install (as in slice 1) and an assertion of the guaranteed property catch drift that "it works" demos don't.</p>
+  </div>
+
+  <h2>Run it again</h2>
+<pre>npm install
+cp .env.example .env    # set ANTHROPIC_API_KEY
+npm start               # http://localhost:3000
+npm test                # no network
+npm run smoke           # live API, ~12 calls</pre>
+  <details>
+    <summary>Recorded live result</summary>
+    <p>12/12 live smoke checks, including 6/6 canonical flip-test runs, on <code>claude-opus-5-5</code>. This is a bounded result for these sample cases, not a general reliability claim.</p>
+  </details>
+</main>
+</body>
+</html>

@@ -42,23 +42,25 @@ Build mode: fast
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored — after slice 2 (live flip test in the browser). Learner approved slice 2 with no changes: keep prompt, parser, verifier and orchestration as-is. Slice 3 guidance: strict state cleanup, Try again uses current inputs, Load sample fully resets, empty input makes no request, rejected evidence stays Unplanned with secondary provenance, failures stay Check failed.
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Final kick-the-tires exploration and feedback completed — learner explored the running app and approved with no product changes.
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+Findings: no product changes requested. One demo-readiness note: record at 100% browser zoom (90% minimum) at 1920×1080, not 70%. Measured at a 1920×960 viewport, 100% zoom: the full plan is visible without scrolling, the verdict card ends at 869px, and text is 15px (interface) / 13px mono (panes) / 22px (verdict word). The diff pane shows 16 of 63 lines; scroll it to show the CSV lines. No CSS change needed; taller textareas would push the verdict below the fold.
+
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — prior practice connected
+- [x] Optional edit and transfer reflection addressed — edit not applicable; reflection question offered
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: 
-Route and stops: 
-Edit outcome: 
-Reflection: 
-Activity mode: 
+Activity and evidence: Prior practice connected. During the build, the learner directed compatibility probes right after install (slice 1) and approved two compatibility revisions. A contract-level test (`test/check.test.js` → "schema reaches the API with both branches enforced") showed that the SDK's default schema transform dropped `enum`/`const` enforcement, fixed with `transform: false` (see Revisions). This ties to the spec's guaranteed property (`spec.md > Components > Model adapter`) and to catching drift beyond the contract.
+Route and stops: Reference-only route in the app map: `public/state.js` → `reduce`; `src/check.js` → `runCheck`; `src/verify.js` → `verifyEvidence`. Not toured interactively.
+Edit outcome: Not applicable (learner requested no product changes).
+Reflection: Offered at handoff.
+Activity mode: Prior practice connected, plus the app map. Map built from commit `f91074e`; symbols checked against source; rendered offline in the browser pane.
 
 ## Revisions
 
