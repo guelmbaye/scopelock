@@ -208,3 +208,28 @@ textarea:disabled { background: #fbfbfa; color: var(--muted); }
 
 .location { color: var(--muted); margin-top: 4px; }
 .evidence .none { margin: 0; color: var(--muted); }
+
+.status-detail { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+.retry { margin-top: 12px; }
+
+/* Rejected evidence: provenance, visually secondary to the verdict. */
+.evidence-check {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  color: var(--muted);
+}
+
+.evidence-check h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.evidence-check .quote,
+.evidence-check .location { font-size: 12px; color: var(--muted); }
+
+.evidence-check .rejected { margin: 6px 0 0; font-size: 12px; }
+
+#quality-label[data-kind="notEvaluated"] .quality-title { color: var(--muted); }

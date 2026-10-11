@@ -230,7 +230,8 @@ scopelock/
 ├── public/
 │   ├── index.html             # single page: header, two panes, button, result area
 │   ├── styles.css             # tokens + layout from Look and Feel
-│   ├── app.js                 # UI state machine, rendering, fetch
+│   ├── app.js                 # DOM wiring, rendering, fetch
+│   ├── state.js               # pure result-state machine + result copy (no DOM; tested)
 │   └── sample.js              # SAMPLE_PLAN, SAMPLE_DIFF (shared with tests)
 ├── test/
 │   ├── fixtures/
@@ -238,7 +239,8 @@ scopelock/
 │   ├── markdown-blocks.test.js  # parser rules
 │   ├── verify.test.js           # verifier outcomes
 │   ├── check.test.js            # orchestrator decision table with mocked model
-│   └── api.test.js              # HTTP: 200/400/502 shapes via createApp + mock model + fetch
+│   ├── api.test.js              # HTTP: 200/400/502 shapes via createApp + mock model + fetch
+│   └── state.test.js            # UI state machine: outdated, empty input, retry, Load sample reset, copy
 ├── scripts/
 │   └── smoke-live.js          # npm run smoke — live API, never in npm test
 ├── .env.example               # ANTHROPIC_API_KEY=, ANTHROPIC_MODEL=claude-opus-5-5, PORT=3000

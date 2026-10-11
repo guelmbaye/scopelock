@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: Run the flip test yourself in the browser: Conflict, move one line, Aligned. Tell me what you notice about the verdict, explanation and evidence presentation, and anything you'd change before the remaining states go in.
   Commit: `Add model adapter, check endpoint and live flip test page`
 
-- [ ] **3. Every non-happy state is honest**
+- [x] **3. Every non-happy state is honest**
   Becomes usable: Rejected evidence shows the secondary **Evidence check** note (quote not found / found elsewhere); unrelated diffs show "No relevant planning decision was found"; editing after a verdict shows **Inputs changed — check again**; empty panes show **Not checked** + inline required messages; API failure shows **Check failed** + Try again; Load sample resets; the technical-quality label switches between sample and "not evaluated". README documents setup and limitations.
   Why now: These states only make sense once a real verdict exists to go stale, fail or be rejected; they complete the trust story rather than prove it.
   PRD ref: `prd.md > States and Boundaries`, `prd.md > Evidence Verification`, `prd.md > Technical Quality Labeling`, `prd.md > Sample Preload and Load Sample`, `prd.md > Build-Time Copy Details`
@@ -41,7 +41,7 @@ Build mode: fast
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 2 (live flip test in the browser)
+- [x] Early usable behavior explored — after slice 2 (live flip test in the browser). Learner approved slice 2 with no changes: keep prompt, parser, verifier and orchestration as-is. Slice 3 guidance: strict state cleanup, Try again uses current inputs, Load sample fully resets, empty input makes no request, rejected evidence stays Unplanned with secondary provenance, failures stay Check failed.
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
@@ -64,4 +64,9 @@ Activity mode:
 
 - Model output schema wrapped in a top-level object `{ proposal: anyOf[aligned|conflict + evidence, unplanned + null] }`, read as `parsed_output.proposal` (implementation compatibility; no product change, `check_failed` rules unchanged) — the slice 1 probe showed `jsonSchemaOutputFormat` in `@anthropic-ai/sdk` 0.133.0 throws on a schema whose top level isn't `type: "object"`, so the spec's top-level `anyOf` couldn't be passed. Updated `spec.md` / `spec.html > Model adapter`.
 - `jsonSchemaOutputFormat(PROPOSAL_SCHEMA, { transform: false })` (implementation compatibility; no product change) — a slice 2 unit test showed the SDK's default schema transform rewrites `enum: ["aligned","conflict"]` and `const: "unplanned"` into description text, so the API would no longer enforce the verdict↔evidence branches. Disabling the transform sends the approved schema as written. Updated `spec.md` / `spec.html > Model adapter`.
+- UI state machine moved from `public/app.js` into a pure `public/state.js` (plus `test/state.test.js`); `app.js` keeps DOM wiring and fetch (internal structure; no product change) — the state rules (outdated, empty precedence, retry with current inputs, full Load sample reset) needed mechanical tests, and the spec's no-new-dependencies stack has no DOM test environment. Updated `spec.md` / `spec.html > File Structure`.
+
+## Recorded Results
+
+- Live smoke (slice 2, `claude-opus-5-5`): **12/12 live smoke checks, including 6/6 canonical flip-test runs**. Use only as this bounded claim in submission language, not as a general reliability claim.
 

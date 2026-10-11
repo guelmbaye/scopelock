@@ -223,11 +223,12 @@ label{font:600 12px var(--sans);color:var(--muted);display:block;margin:6px 0 3p
 │   └── verify.js            <i># whole-block equality under exact path</i>
 ├── <b>public/</b>
 │   ├── index.html · styles.css · app.js
+│   ├── state.js             <i># pure result-state machine + copy (tested)</i>
 │   └── sample.js            <i># shared with tests</i>
 ├── <b>test/</b>
 │   ├── fixtures/validation-cases.js
 │   ├── markdown-blocks.test.js · verify.test.js
-│   └── check.test.js · api.test.js
+│   └── check.test.js · api.test.js · state.test.js
 ├── <b>scripts/</b>smoke-live.js     <i># live API, manual only</i>
 ├── .env.example             <i># ANTHROPIC_API_KEY, ANTHROPIC_MODEL, PORT</i>
 ├── package.json             <i># start · test · smoke</i>
