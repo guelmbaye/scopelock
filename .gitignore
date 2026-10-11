@@ -8,3 +8,9 @@
 
 # Dependencies
 node_modules/
+
+# Local agent/skill tooling (not part of the app)
+.agents/
+.claude/
+agent/
+skills-lock.json

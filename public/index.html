@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SCOPELOCK</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>SCOPELOCK</h1>
+      <p class="tagline">Does this change belong to the product you planned?</p>
+    </div>
+    <button type="button" id="load-sample" class="ghost">Load sample</button>
+  </header>
+
+  <main>
+    <div class="panes">
+      <section class="pane">
+        <label for="plan" class="pane-label">Planning contract</label>
+        <p class="pane-note">Scope, PRD or plan text. Headings define where each decision sits.</p>
+        <textarea id="plan" spellcheck="false"></textarea>
+        <p class="required" id="plan-required" hidden>Planning contract required</p>
+      </section>
+
+      <section class="pane">
+        <label for="diff" class="pane-label">Proposed change</label>
+        <p class="pane-note" id="quality-label">
+          <span class="quality-title">Sample scenario · known-working change</span>
+          <span class="quality-detail">Technical quality is intentionally assumed for this demo; SCOPELOCK only checks whether the change belongs to the plan.</span>
+        </p>
+        <textarea id="diff" spellcheck="false"></textarea>
+        <p class="required" id="diff-required" hidden>Proposed change required</p>
+      </section>
+    </div>
+
+    <div class="actions">
+      <button type="button" id="check" class="primary">Check Alignment</button>
+    </div>
+
+    <section class="result" id="result" aria-live="polite" data-state="ready">
+      <h2 class="result-title">Product alignment</h2>
+      <div id="result-body"></div>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

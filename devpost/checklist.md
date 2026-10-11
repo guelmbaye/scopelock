@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Run `npm test`, skim `test/verify.test.js`, and judge whether the rejection cases match what you meant by "the model can't invent the source" — especially that a partial quote is rejected.
   Commit: `Add plan parser and evidence verifier with validation cases`
 
-- [ ] **2. The flip test runs live in the browser**
+- [x] **2. The flip test runs live in the browser**
   Becomes usable: `npm start`, open localhost:3000, see the preloaded sample, press Check Alignment → **CONFLICT · Stop** with verified evidence `Scope > Later`; move the line to Now, press again → **ALIGNED · Proceed**. `npm run smoke` measures model reliability against the real API.
   Why now: Both remaining risks live here — the SDK's `jsonSchemaOutputFormat` import path / two-branch `anyOf` schema, and your main uncertainty (does the model reproduce the complete block and correct path?). Finding out before building UI states means a prompt problem reshapes the plan cheaply.
   PRD ref: `prd.md > The Core Journey` (steps 1–6), `prd.md > Alignment Check`, `prd.md > Look and Feel`
@@ -63,4 +63,5 @@ Activity mode:
 ## Revisions
 
 - Model output schema wrapped in a top-level object `{ proposal: anyOf[aligned|conflict + evidence, unplanned + null] }`, read as `parsed_output.proposal` (implementation compatibility; no product change, `check_failed` rules unchanged) — the slice 1 probe showed `jsonSchemaOutputFormat` in `@anthropic-ai/sdk` 0.133.0 throws on a schema whose top level isn't `type: "object"`, so the spec's top-level `anyOf` couldn't be passed. Updated `spec.md` / `spec.html > Model adapter`.
+- `jsonSchemaOutputFormat(PROPOSAL_SCHEMA, { transform: false })` (implementation compatibility; no product change) — a slice 2 unit test showed the SDK's default schema transform rewrites `enum: ["aligned","conflict"]` and `const: "unplanned"` into description text, so the API would no longer enforce the verdict↔evidence branches. Disabling the transform sends the approved schema as written. Updated `spec.md` / `spec.html > Model adapter`.
 
