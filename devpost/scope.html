@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCOPELOCK Scope Review</title>
+<!-- Planning-review companion to scope.md. Markdown is canonical; this page is not part of the product. -->
+<style>
+  :root {
+    --bg: #f7f6f2; --surface: #ffffff; --ink: #1d1d1b; --muted: #5f5e58; --line: #dcdad2;
+    --accent: #2f5bd3; --ok: #1f7a4d; --ok-bg: #e4f3ea; --warn: #8a6100; --warn-bg: #fbf0d6;
+    --bad: #b3261e; --bad-bg: #fbe3e1; --code-bg: #f0eee8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151514; --surface: #1f1f1d; --ink: #ecebe6; --muted: #a6a59e; --line: #34332f;
+      --accent: #8aa8ff; --ok: #6fd3a0; --ok-bg: #173226; --warn: #f0c768; --warn-bg: #3a2f12;
+      --bad: #ff9b92; --bad-bg: #3d1a17; --code-bg: #272724;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151514; --surface: #1f1f1d; --ink: #ecebe6; --muted: #a6a59e; --line: #34332f;
+    --accent: #8aa8ff; --ok: #6fd3a0; --ok-bg: #173226; --warn: #f0c768; --warn-bg: #3a2f12;
+    --bad: #ff9b92; --bad-bg: #3d1a17; --code-bg: #272724;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px 64px; }
+  header .tag { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  h1 { font-size: 40px; margin: 4px 0 6px; letter-spacing: -.02em; }
+  h2 { font-size: 20px; margin: 40px 0 10px; }
+  p.lede { font-size: 18px; color: var(--muted); margin: 0; }
+  .kernel { margin-top: 24px; padding: 18px 20px; border-left: 4px solid var(--accent);
+    background: var(--surface); border-radius: 6px; }
+  .kernel strong { color: var(--accent); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .pill { display: inline-block; font-weight: 600; font-size: 13px; padding: 2px 10px; border-radius: 999px; }
+  .ok { color: var(--ok); background: var(--ok-bg); }
+  .warn { color: var(--warn); background: var(--warn-bg); }
+  .bad { color: var(--bad); background: var(--bad-bg); }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { fill: var(--ink); font: 14px system-ui, sans-serif; }
+  svg .sub { fill: var(--muted); font-size: 12px; }
+  svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+  svg .hl { stroke: var(--accent); stroke-width: 2; }
+  svg .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; marker-end: url(#ah); }
+  svg #ah path { fill: var(--muted); }
+  /* flip test stepper */
+  .stepper { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stepper button { font: inherit; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink); cursor: pointer; }
+  .stepper button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .flip { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .flip { grid-template-columns: 1fr; } h1 { font-size: 32px; } }
+  pre { margin: 6px 0 0; background: var(--code-bg); padding: 10px 12px; border-radius: 6px;
+    font: 13px/1.5 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
+  .changed { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; }
+  summary { cursor: pointer; padding: 14px 18px; font-weight: 600; }
+  details > div { padding: 0 18px 14px; }
+  details ul { margin: 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 48px; border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="tag">Scope review · approved</div>
+    <h1>SCOPELOCK</h1>
+    <p class="lede">Checks whether a proposed code change still belongs to the product you decided to build, and shows the planning evidence behind the verdict.</p>
+  </header>
+
+  <div class="kernel">
+    <strong>Kernel:</strong> a change can be valid code and still be the wrong change. SCOPELOCK judges a diff against the <em>plan</em>, not against the model's sense of good engineering. The model can interpret, but <strong>it cannot invent the source</strong>: every piece of evidence must be found word for word in the planning text, <strong>under the section the model claims</strong>. The same line means different things under "Later" and "Now", so the evidence is the quote plus its verified location.
+  </div>
+
+  <h2>Who it's for</h2>
+  <div class="card">A developer working with AI coding agents who has already done the planning. Today, drift slips through: the agent adds a feature that was explicitly pushed to "later". It compiles, tests pass, the UI looks good, and catching it depends on remembering the decision.</div>
+
+  <h2>The core loop</h2>
+  <svg viewBox="0 0 800 300" role="img" aria-labelledby="loopTitle">
+    <title id="loopTitle">Planning text and a diff go into the check; the model proposes a verdict, a quote and its section; a check verifies both the quote and that it sits under that section, otherwise the result falls back to Unplanned.</title>
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+    <rect class="box" x="10" y="30" width="170" height="64" rx="8"/>
+    <text x="24" y="58">Planning contract</text><text class="sub" x="24" y="78">editable scope/PRD text</text>
+    <rect class="box" x="10" y="130" width="170" height="64" rx="8"/>
+    <text x="24" y="158">One coherent diff</text><text class="sub" x="24" y="178">pasted, single change</text>
+    <rect class="box" x="240" y="80" width="170" height="64" rx="8"/>
+    <text x="254" y="108">Model interprets</text><text class="sub" x="254" y="128">verdict + quote + section</text>
+    <rect class="box hl" x="470" y="80" width="150" height="64" rx="8"/>
+    <text x="484" y="108">Evidence check</text><text class="sub" x="484" y="128">quote + section match?</text>
+    <rect class="box" x="660" y="30" width="130" height="64" rx="8"/>
+    <text x="674" y="58">Verdict</text><text class="sub" x="674" y="78">+ verified evidence</text>
+    <rect class="box" x="660" y="160" width="130" height="64" rx="8"/>
+    <text x="674" y="188">Unplanned</text><text class="sub" x="674" y="208">review plan</text>
+    <path class="arrow" d="M180,62 C210,62 210,100 238,105"/>
+    <path class="arrow" d="M180,162 C210,162 210,125 238,120"/>
+    <path class="arrow" d="M410,112 L468,112"/>
+    <path class="arrow" d="M620,100 C640,90 640,66 658,62"/>
+    <path class="arrow" d="M620,126 C640,140 640,188 658,190"/>
+    <text class="sub" x="628" y="80">verified</text>
+    <text class="sub" x="628" y="160">not verified</text>
+    <text class="sub" x="10" y="270">Verdicts:</text>
+    <text x="80" y="270" style="fill:var(--ok);font-weight:600">Aligned</text>
+    <text x="160" y="270" style="fill:var(--warn);font-weight:600">Unplanned</text>
+    <text x="260" y="270" style="fill:var(--bad);font-weight:600">Conflict</text>
+  </svg>
+  <div class="grid" style="margin-top:12px">
+    <div class="card"><span class="pill ok">Aligned</span><p>Clearly supported by a planning decision.</p></div>
+    <div class="card"><span class="pill warn">Unplanned</span><p>No supporting or conflicting decision, or the citation couldn't be verified (quote missing, or not under the claimed section).</p></div>
+    <div class="card"><span class="pill bad">Conflict</span><p>Contradicts something explicitly deferred or excluded.</p></div>
+  </div>
+
+  <h2>What "working" looks like: the flip test</h2>
+  <p style="margin-top:0;color:var(--muted)">Same diff, same quoted line. The verdict changes only because the line's verified section changed.</p>
+  <div class="card">
+    <div class="stepper" role="group" aria-label="Flip test step">
+      <button type="button" data-step="1" aria-pressed="true">1 · Original plan</button>
+      <button type="button" data-step="2" aria-pressed="false">2 · Decision moved to Now</button>
+    </div>
+    <div class="flip">
+      <div>
+        <div class="label">Planning text</div>
+        <pre id="plan">## Now
+- Single verdict per diff
+
+## Later
+- Export results as CSV</pre>
+      </div>
+      <div>
+        <div class="label">Diff (unchanged)</div>
+        <pre>+ function exportCsv(results) {
++   ...
++ }
++ &lt;button&gt;Export CSV&lt;/button&gt;</pre>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="label">Result</div>
+      <p id="verdict" style="margin:6px 0 0"></p>
+    </div>
+    <p class="sub" style="font-size:12px;color:var(--muted);margin:10px 0 0">The plan line and the diff here are illustrations only; the PRD defines the real sample.</p>
+  </div>
+
+  <h2>Boundary</h2>
+  <details open>
+    <summary>Now: the POC</summary>
+    <div><ul>
+      <li>One planning contract: editable planning text in the page.</li>
+      <li>One coherent proposed change: a pasted diff representing a single product change.</li>
+      <li>One verdict + a short explanation + an evidence trail.</li>
+      <li>Citation check on quote <strong>and</strong> location: verbatim quote inside the claimed section/heading; if either fails, fall back to <strong>Unplanned / review plan</strong>.</li>
+      <li>A sample plan and sample diff(s) ready to load for the flip test.</li>
+    </ul></div>
+  </details>
+  <details>
+    <summary>Later</summary>
+    <div><ul>
+      <li>Mixed diffs: splitting into separate changes, a verdict per change, rules for combining them.</li>
+      <li>GitHub PR integration, CI check, IDE extension, agent hook.</li>
+      <li>Reading docs and diffs straight from the repo (CLI or file loading).</li>
+    </ul></div>
+  </details>
+  <details>
+    <summary>Explicitly cut</summary>
+    <div><ul>
+      <li><strong>Mixed / multi-change diffs:</strong> a stated POC limitation; a weak version would undermine the proof.</li>
+      <li><strong>General code review, bug or security detection:</strong> these judge technical quality, not product fit.</li>
+      <li><strong>Project-management features, chat over the repo:</strong> a different product.</li>
+    </ul></div>
+  </details>
+
+  <p class="note">Planning-review companion to <code>scope.md</code>, which is the source of truth. Not part of the SCOPELOCK product.</p>
+</main>
+<script>
+  const plans = {
+    1: "## Now\n- Single verdict per diff\n\n## Later\n- Export results as CSV",
+    2: "## Now\n- Single verdict per diff\n- Export results as CSV\n\n## Later\n"
+  };
+  const verdicts = {
+    1: '<span class="pill bad">Conflict</span> Evidence: “Export results as CSV”, claimed section <em>Later</em>. Quote found ✓ · under “## Later” ✓',
+    2: '<span class="pill ok">Aligned</span> Evidence: “Export results as CSV”, claimed section <em>Now</em>. Quote found ✓ · under “## Now” ✓'
+  };
+  const plan = document.getElementById('plan'), verdict = document.getElementById('verdict');
+  function show(step) {
+    plan.textContent = plans[step];
+    plan.classList.toggle('changed', step == 2);
+    verdict.innerHTML = verdicts[step];
+    document.querySelectorAll('.stepper button').forEach(b => b.setAttribute('aria-pressed', b.dataset.step == step));
+  }
+  document.querySelectorAll('.stepper button').forEach(b => b.addEventListener('click', () => show(b.dataset.step)));
+  show(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCOPELOCK Spec Review</title>
+<style>
+:root{
+  --bg:#f7f7f5;--surface:#fff;--ink:#1b1d1f;--muted:#5f656b;--line:#dcdcd7;--soft:#efefeb;
+  --green:#2f7a4f;--green-bg:#eaf4ee;--amber:#9a6a12;--amber-bg:#faf2e1;--red:#b0392f;--red-bg:#fbecea;
+  --accent:#2b4f7a;--accent-bg:#e8eef5;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141517;--surface:#1c1e21;--ink:#e8e8e5;--muted:#a0a5aa;--line:#33363a;--soft:#25272b;
+  --green:#6cc391;--green-bg:#1b2e23;--amber:#e0b35a;--amber-bg:#2f2717;--red:#ec8278;--red-bg:#341e1c;--accent:#8db4e2;--accent-bg:#1e2a38;}}
+:root[data-theme="dark"]{
+  --bg:#141517;--surface:#1c1e21;--ink:#e8e8e5;--muted:#a0a5aa;--line:#33363a;--soft:#25272b;
+  --green:#6cc391;--green-bg:#1b2e23;--amber:#e0b35a;--amber-bg:#2f2717;--red:#ec8278;--red-bg:#341e1c;--accent:#8db4e2;--accent-bg:#1e2a38;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans)}
+main{max-width:1000px;margin:0 auto;padding:40px 16px 80px}
+h1{font-size:28px;letter-spacing:.04em;margin:0 0 4px}
+h2{font-size:18px;margin:48px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+h3{font-size:15px;margin:0 0 6px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+code,.mono{font-family:var(--mono);font-size:13px}
+.tag{display:inline-block;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--line);border-radius:4px;color:var(--muted)}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin:14px 0}
+.note{border-left:3px solid var(--accent)}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto}
+svg text{font-family:var(--sans);fill:var(--ink)}
+svg .m{font-family:var(--mono)}
+svg .mut{fill:var(--muted)}
+svg rect.n{fill:var(--surface);stroke:var(--line)}
+svg rect.k{fill:var(--accent-bg);stroke:var(--accent)}
+svg rect.v{fill:var(--green-bg);stroke:var(--green)}
+svg line,svg path.a{stroke:var(--muted);fill:none}
+svg path.bd{stroke:var(--red);stroke-dasharray:5 4;fill:none}
+.btns{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.btns button{font:13px var(--sans);padding:6px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:5px;cursor:pointer}
+.btns button[aria-pressed="true"]{border-color:var(--ink);font-weight:600}
+.step{display:grid;grid-template-columns:200px 1fr;gap:14px}
+@media (max-width:700px){.step{grid-template-columns:1fr}}
+.where{font:12.5px/1.7 var(--mono)}
+.where div{padding:2px 8px;border-radius:4px;color:var(--muted)}
+.where div.on{background:var(--accent-bg);color:var(--ink);font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.tw{overflow-x:auto}
+details{background:var(--surface);border:1px solid var(--line);border-radius:6px;margin:8px 0}
+summary{cursor:pointer;padding:10px 14px;font-weight:600}
+summary code{font-weight:400;color:var(--muted)}
+details>div{padding:0 14px 12px}
+.ok{color:var(--green);font-weight:600}.bad{color:var(--red);font-weight:600}.amb{color:var(--amber);font-weight:600}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:760px){.pg{grid-template-columns:1fr}}
+textarea,input{width:100%;font:12.5px/1.55 var(--mono);background:var(--soft);color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:8px}
+textarea{min-height:210px;resize:vertical}
+label{font:600 12px var(--sans);color:var(--muted);display:block;margin:6px 0 3px}
+.blocks{font:12px/1.6 var(--mono);max-height:240px;overflow:auto}
+.blocks div{padding:2px 6px;border-radius:3px}
+.blocks div.hit{background:var(--green-bg)}
+.blocks div.near{background:var(--amber-bg)}
+.res{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:5px;font:13px/1.6 var(--mono)}
+.res.y{border-left:3px solid var(--green)}.res.n{border-left:3px solid var(--amber)}
+.tree{font:12.5px/1.65 var(--mono);white-space:pre;overflow-x:auto}
+.tree b{color:var(--accent);font-weight:600}
+.tree i{color:var(--muted);font-style:normal}
+</style>
+</head>
+<body>
+<main>
+<span class="tag">4-spec · review companion · approved</span>
+<h1>SCOPELOCK — Technical Spec</h1>
+<p class="muted">Canonical source: <code>devpost/spec.md</code>. This page helps you review it; it isn't part of the product.</p>
+
+<h2>1 · The shape: three parts, one trust boundary</h2>
+<p>The page collects input and shows state. The server asks Claude for a <em>proposal</em>. The verifier decides, with no AI, whether that proposal counts as evidence. The model and verifier modules never import each other; <code>check.js</code> joins them.</p>
+<div class="diagram">
+<svg viewBox="0 0 900 250" width="100%" role="img" aria-label="Architecture: page posts to server; orchestrator calls model and verifier; only model talks to Anthropic API">
+  <rect class="n" x="10" y="90" width="160" height="70" rx="6"/>
+  <text x="90" y="118" text-anchor="middle" font-weight="600">Page</text>
+  <text x="90" y="138" text-anchor="middle" class="m mut" font-size="11">public/app.js</text>
+
+  <rect class="n" x="230" y="20" width="430" height="210" rx="8" fill="none"/>
+  <text x="245" y="42" class="mut" font-size="12">Express server · server.js · POST /api/check</text>
+
+  <rect class="n" x="260" y="90" width="150" height="70" rx="6"/>
+  <text x="335" y="118" text-anchor="middle" font-weight="600">Orchestrator</text>
+  <text x="335" y="138" text-anchor="middle" class="m mut" font-size="11">src/check.js</text>
+
+  <rect class="k" x="470" y="55" width="170" height="60" rx="6"/>
+  <text x="555" y="80" text-anchor="middle" font-weight="600">Model adapter</text>
+  <text x="555" y="99" text-anchor="middle" class="m mut" font-size="11">src/model.js · proposes</text>
+
+  <rect class="v" x="470" y="140" width="170" height="70" rx="6"/>
+  <text x="555" y="164" text-anchor="middle" font-weight="600">Verifier</text>
+  <text x="555" y="182" text-anchor="middle" class="m mut" font-size="11">verify.js + markdown-blocks.js</text>
+  <text x="555" y="199" text-anchor="middle" class="mut" font-size="11">decides · no AI</text>
+
+  <rect class="n" x="720" y="55" width="165" height="60" rx="6"/>
+  <text x="802" y="80" text-anchor="middle" font-weight="600">Anthropic API</text>
+  <text x="802" y="99" text-anchor="middle" class="m mut" font-size="11">ANTHROPIC_MODEL</text>
+
+  <line x1="170" y1="125" x2="260" y2="125" marker-end="url(#ar)"/>
+  <text x="215" y="117" text-anchor="middle" class="mut" font-size="10">{plan, diff}</text>
+  <line x1="410" y1="112" x2="470" y2="90" marker-end="url(#ar)"/>
+  <line x1="410" y1="140" x2="470" y2="170" marker-end="url(#ar)"/>
+  <line x1="640" y1="85" x2="720" y2="85" marker-end="url(#ar)"/>
+  <path class="bd" d="M555 117 L555 138"/>
+  <text x="662" y="132" class="mut" font-size="10" fill="var(--red)">no import between these</text>
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+</svg>
+</div>
+
+<h2>2 · Core journey through the system</h2>
+<p class="muted">Step through <code>prd.md &gt; The Core Journey</code> and see which file handles each step.</p>
+<div class="btns" id="jbtns"></div>
+<div class="box step">
+  <div class="where" id="jwhere"></div>
+  <div id="jtext"></div>
+</div>
+
+<h2>3 · How the server decides the final verdict</h2>
+<p class="muted"><code>src/check.js</code> can only <em>downgrade</em> the model's verdict, never upgrade it or reinterpret it.</p>
+<div class="tw box"><table>
+<tr><th>Model says</th><th>Evidence</th><th>Final result</th></tr>
+<tr><td>aligned / conflict</td><td>proposed, verifies</td><td><span class="ok">same verdict</span> + Evidence</td></tr>
+<tr><td>aligned / conflict</td><td>proposed, rejected</td><td><span class="amb">unplanned</span> + Evidence check (<code>quote_not_found</code> | <code>wrong_path</code>)</td></tr>
+<tr><td>unplanned</td><td>null</td><td><span class="amb">unplanned</span>, "No relevant planning decision…"</td></tr>
+<tr><td>aligned / conflict</td><td>null</td><td><span class="bad">check_failed</span>: structurally invalid</td></tr>
+<tr><td>unplanned</td><td>non-null</td><td><span class="bad">check_failed</span>: structurally invalid</td></tr>
+<tr><td colspan="2">API error · refusal · truncation · no <code>parsed_output</code></td><td><span class="bad">check_failed</span> (502), never Unplanned</td></tr>
+</table></div>
+<p class="muted">The schema already forbids the two invalid rows. If one arrives anyway, it is rejected, never repaired.</p>
+<div class="diagram">
+<svg viewBox="0 0 900 150" width="100%" role="img" aria-label="Output schema: anyOf two branches">
+  <rect class="n" x="10" y="50" width="170" height="50" rx="6"/>
+  <text x="95" y="72" text-anchor="middle" font-weight="600">PROPOSAL_SCHEMA</text>
+  <text x="95" y="90" text-anchor="middle" class="m mut" font-size="11">object → proposal: anyOf</text>
+  <rect class="v" x="260" y="10" width="620" height="55" rx="6"/>
+  <text x="275" y="33" class="m" font-size="12">verdict: "aligned" | "conflict"</text>
+  <text x="275" y="52" class="m" font-size="12">evidence: { quote: string, headingPath: string[] }   ← required</text>
+  <rect class="n" x="260" y="85" width="620" height="55" rx="6"/>
+  <text x="275" y="108" class="m" font-size="12">verdict: "unplanned"</text>
+  <text x="275" y="127" class="m" font-size="12">evidence: null   ← must be null</text>
+  <line x1="180" y1="70" x2="260" y2="40" marker-end="url(#ar)"/>
+  <line x1="180" y1="82" x2="260" y2="112" marker-end="url(#ar)"/>
+</svg>
+</div>
+
+<h2>4 · Try the verifier rules</h2>
+<p class="muted">A working copy of the agreed parsing and matching rules: ATX headings, whole-block equality, exact path. Edit any field and the result updates. It is the same logic the build will implement in <code>src/markdown-blocks.js</code> and <code>src/verify.js</code>.</p>
+<div class="btns" id="pbtns"></div>
+<div class="pg">
+  <div>
+    <label for="pplan">Planning text</label>
+    <textarea id="pplan" spellcheck="false"></textarea>
+  </div>
+  <div>
+    <label for="pquote">Proposed quote</label>
+    <input id="pquote" spellcheck="false">
+    <label for="ppath">Claimed heading path (one label per <code>&gt;</code> here for convenience; it's an array in the data)</label>
+    <input id="ppath" spellcheck="false">
+    <div class="res" id="pres"></div>
+    <label>Parsed citable blocks → path</label>
+    <div class="blocks box" id="pblocks" style="margin:0"></div>
+  </div>
+</div>
+
+<h2>5 · UI result states</h2>
+<div class="tw box"><table>
+<tr><th>State</th><th>Entered when</th><th>Shows</th></tr>
+<tr><td class="mono">ready</td><td>first load · Load sample</td><td>Ready to check</td></tr>
+<tr><td class="mono">notChecked</td><td>Check with an empty pane · a pane emptied after a verdict (wins over outdated)</td><td>Not checked + inline "… required"</td></tr>
+<tr><td class="mono">checking</td><td>request in flight; inputs and buttons locked</td><td>Checking…</td></tr>
+<tr><td class="mono">verdict</td><td>200 response</td><td>verdict · action, explanation, evidence</td></tr>
+<tr><td class="mono">outdated</td><td>any edit while in verdict, both panes non-empty</td><td>Inputs changed — check again</td></tr>
+<tr><td class="mono">failed</td><td>502, network error, malformed reply</td><td>Check failed + Try again</td></tr>
+</table></div>
+<p class="muted">Technical-quality label: <code>diffPane.value === SAMPLE_DIFF</code> → "Sample scenario · known-working change"; otherwise "Technical quality: not evaluated".</p>
+
+<h2>6 · Components</h2>
+<details><summary>Model adapter <code>src/model.js</code></summary><div>
+<p>The only file that imports <code>@anthropic-ai/sdk</code>. The model comes from <code>ANTHROPIC_MODEL</code> (default <code>claude-opus-5-5</code>). It calls <code>client.messages.parse()</code> with <code>output_config.format: jsonSchemaOutputFormat(PROPOSAL_SCHEMA)</code> (from <code>@anthropic-ai/sdk/helpers/json-schema</code>), effort <code>medium</code>, a 60s timeout and 1 retry.</p>
+<p>Schema: a top-level object <code>{ proposal }</code> whose <code>proposal</code> is two <code>anyOf</code> branches (the SDK 0.133.0 helper requires a top-level <code>type: "object"</code>). Aligned/conflict require evidence <code>{quote, headingPath[]}</code>; unplanned requires evidence to be <code>null</code>. It checks <code>stop_reason</code> first, then reads <code>message.parsed_output.proposal</code>, then runs a defensive branch check. Refusal, truncation, missing output or an impossible combination throws, which becomes check_failed.</p>
+<p>The prompt requires the complete block text, copied exactly with the leading marker removed and inline Markdown kept, plus a full outer-to-inner heading path and a worked example. <span class="muted">Implements prd.md › Alignment Check, Evidence Verification.</span></p></div></details>
+<details><summary>Plan parser <code>src/markdown-blocks.js</code></summary><div>
+<p><code>parsePlan(text) → [{text, path}]</code>. ATX headings only, using a normal stack. A block is a paragraph or a list item with indented continuation lines. Only the leading <code>- * + 1.</code>, <code>[ ]</code> and <code>&gt;</code> are stripped. Fenced code is ignored, setext headings are treated as text, and blocks before any heading get path <code>[]</code>.</p>
+<p><code>normalize</code>: CRLF → LF, collapse spaces/tabs/newlines, trim. Nothing else. <span class="muted">Implements prd.md › Evidence Verification.</span></p></div></details>
+<details><summary>Verifier <code>src/verify.js</code></summary><div>
+<p>Whole-block equality, then the exact path among the matches. It returns <code>ok</code>, <code>quote_not_found</code>, or <code>wrong_path</code> with the paths where the quote was actually found. Duplicates pass if any occurrence matches the claimed path.</p></div></details>
+<details><summary>Orchestrator <code>src/check.js</code> · Server <code>server.js</code></summary><div>
+<p><code>createApp({model})</code> lets tests inject a mock. Responses: 200 <code>verdict</code> · 400 <code>invalid_input</code> · 502 <code>check_failed</code>. The server listens on <code>PORT||3000</code>. A missing key logs a warning and checks then fail cleanly.</p></div></details>
+<details><summary>Page <code>public/</code> · Sample <code>public/sample.js</code></summary><div>
+<p>Plain HTML/CSS/JS. <code>sample.js</code> exports <code>SAMPLE_PLAN</code> (<code># Scope</code> › <code>## Now</code> / <code>## Later</code> with "Export results as CSV") and <code>SAMPLE_DIFF</code>. The page and the tests both import it.</p></div></details>
+<details><summary>Live smoke checks <code>scripts/smoke-live.js</code></summary><div>
+<p><code>npm run smoke</code>, manual only. It runs cases 1, 2, 3 and 6 against the real API, 3 times each (about 12 calls, well under $1). Bar: the flip test passes 3/3. If it misses, fix the prompt and never the verifier. Next lever: annotate each plan block with its computed path in the prompt.</p></div></details>
+
+<h2>7 · Validation set</h2>
+<div class="tw box"><table>
+<tr><th>#</th><th>Case</th><th>Mock proposal</th><th>Expected</th></tr>
+<tr><td>1</td><td>Sample, CSV under Later</td><td class="mono">conflict · Scope › Later</td><td class="ok">conflict ✓</td></tr>
+<tr><td>2</td><td>Line moved to Now</td><td class="mono">aligned · Scope › Now</td><td class="ok">aligned ✓</td></tr>
+<tr><td>3</td><td>Unrelated diff</td><td class="mono">unplanned · null</td><td class="amb">unplanned, no evidence</td></tr>
+<tr><td>4</td><td>Right quote, wrong path</td><td class="mono">conflict · Scope › Now</td><td class="amb">unplanned · wrong_path</td></tr>
+<tr><td>5</td><td>Partial / paraphrased quote</td><td class="mono">"Export results" · "CSV export of results"</td><td class="amb">unplanned · quote_not_found</td></tr>
+<tr><td>6</td><td>Same text under two Later sections</td><td class="mono">Roadmap › Later</td><td class="ok">conflict ✓</td></tr>
+</table></div>
+<p class="muted">All six run in <code>npm test</code> with a mocked model and never cost API credits. Cases 1, 2, 3 and 6 also run live in <code>npm run smoke</code>.</p>
+
+<h2>8 · File structure</h2>
+<div class="box tree"><b>scopelock/</b>
+├── server.js                <i># createApp({model}); static + POST /api/check</i>
+├── <b>src/</b>
+│   ├── check.js             <i># proposal → verifier → final response</i>
+│   ├── model.js             <i># only SDK user: prompt, schema, shape checks</i>
+│   ├── markdown-blocks.js   <i># parsePlan + normalize</i>
+│   └── verify.js            <i># whole-block equality under exact path</i>
+├── <b>public/</b>
+│   ├── index.html · styles.css · app.js
+│   └── sample.js            <i># shared with tests</i>
+├── <b>test/</b>
+│   ├── fixtures/validation-cases.js
+│   ├── markdown-blocks.test.js · verify.test.js
+│   └── check.test.js · api.test.js
+├── <b>scripts/</b>smoke-live.js     <i># live API, manual only</i>
+├── .env.example             <i># ANTHROPIC_API_KEY, ANTHROPIC_MODEL, PORT</i>
+├── package.json             <i># start · test · smoke</i>
+└── README.md</div>
+
+<h2>9 · Run it</h2>
+<div class="box mono">npm install<br>cp .env.example .env   <span class="muted"># add ANTHROPIC_API_KEY</span><br>npm start              <span class="muted"># → http://localhost:3000</span><br>npm test               <span class="muted"># mocked, no API calls</span><br>npm run smoke          <span class="muted"># live, a few cents</span></div>
+<p class="muted">Local only. Submission = demo video + public repo; no deployment.</p>
+
+<h2>10 · Decisions &amp; the open question</h2>
+<div class="box note">
+<p><b>Your hypothesis to validate:</b> can the model reliably return the <em>complete</em> block and the <em>exact</em> full path under this strict contract? The verifier is pinned by tests; the model is measured by smoke checks. If it is unreliable, the first response is the prompt, never a looser verifier.</p>
+<p><b>Known boundary:</b> the verifier checks <em>where</em> the quote sits, not whether that location fits the verdict (e.g. Aligned citing a Later line). By design, that interpretation belongs to the model; the smoke checks watch for it.</p>
+<p class="muted">Accepted at review: fenced code ignored · setext treated as text · no lazy list continuation · no server-side refusal fallback · effort medium · local only.</p>
+<p class="muted">Changed at review: <code>messages.parse()</code> + <code>jsonSchemaOutputFormat</code> → <code>parsed_output</code>; schema branches tie evidence to the verdict, and impossible combinations become check_failed.</p>
+</div>
+</main>
+
+<script>
+/* ---------- journey stepper ---------- */
+const FILES=["public/app.js","server.js","src/check.js","src/model.js","src/verify.js","public/sample.js"];
+const J=[
+ {t:"Open",f:["public/sample.js","public/app.js"],h:"Express serves the page. <code>app.js</code> fills both panes from <code>sample.js</code> and sets <b>Ready to check</b>. No request is sent."},
+ {t:"Check",f:["public/app.js","server.js"],h:"Both panes are non-empty, so the inputs and buttons lock, the state becomes <b>Checking…</b>, and <code>POST /api/check {plan, diff}</code> is sent."},
+ {t:"Propose",f:["src/check.js","src/model.js"],h:"<code>model.js</code> asks Claude and gets <code>{verdict:\"conflict\", evidence:{quote:\"Export results as CSV\", headingPath:[\"Scope\",\"Later\"]}}</code>."},
+ {t:"Verify",f:["src/check.js","src/verify.js"],h:"The verifier parses the plan, finds a block equal to the quote under exactly <code>Scope › Later</code>, and accepts it. The response is <b>CONFLICT · Stop</b> with evidence."},
+ {t:"Edit",f:["public/app.js"],h:"The user moves the line under <code>## Now</code>. The <code>input</code> event sees state=verdict and switches to <b>Inputs changed — check again</b>. Nothing is sent."},
+ {t:"Re-check",f:["public/app.js","server.js","src/check.js","src/model.js","src/verify.js"],h:"Same flow. Claude proposes <code>aligned · [\"Scope\",\"Now\"]</code>, the verifier confirms it, and the page shows <b>ALIGNED · Proceed</b>. Same diff, same line, different verdict."}
+];
+const jb=document.getElementById("jbtns");
+J.forEach((s,i)=>{const b=document.createElement("button");b.textContent=(i+1)+". "+s.t;b.onclick=()=>showJ(i);jb.appendChild(b);});
+function showJ(i){[...jb.children].forEach((b,k)=>b.setAttribute("aria-pressed",k===i));
+ document.getElementById("jwhere").innerHTML=FILES.map(f=>`<div class="${J[i].f.includes(f)?"on":""}">${f}</div>`).join("");
+ document.getElementById("jtext").innerHTML="<p>"+J[i].h+"</p>";}
+showJ(0);
+
+/* ---------- verifier playground (mirrors agreed rules) ---------- */
+const norm=s=>s.replace(/\r\n?/g,"\n").replace(/[ \t\n]+/g," ").trim();
+function parsePlan(text){
+  const lines=text.replace(/\r\n?/g,"\n").split("\n");
+  const stack=[];const blocks=[];let cur=null,kind=null,fence=null;
+  const path=()=>stack.filter(Boolean);
+  const flush=()=>{if(cur){blocks.push({text:cur.join("\n"),path:cur.path});}cur=null;kind=null;};
+  const strip=l=>l.replace(/^ {0,3}> ?/,"");
+  const LIST=/^\s*([-*+]|\d+[.)])\s+/;
+  for(const raw of lines){
+    const fm=raw.match(/^ {0,3}(`{3,}|~{3,})/);
+    if(fence){ if(fm&&fm[1][0]===fence) fence=null; continue; }
+    if(fm){flush();fence=fm[1][0];continue;}
+    const h=raw.match(/^ {0,3}(#{1,6})(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*$/);
+    if(h){flush();const lv=h[1].length;stack.length=lv;stack[lv-1]=norm(h[2]||"");for(let k=0;k<lv-1;k++)if(stack[k]===undefined)stack[k]=undefined;continue;}
+    if(!raw.trim()){flush();continue;}
+    const l=strip(raw);
+    if(LIST.test(l)){flush();let c=l.replace(LIST,"").replace(/^\[[ xX]\]\s+/,"");cur=[c];cur.path=path();kind="li";continue;}
+    if(kind==="li"&&/^( {2,}|\t)/.test(raw)){cur.push(l);continue;}
+    if(kind==="p"){cur.push(l);continue;}
+    flush();cur=[l];cur.path=path();kind="p";
+  }
+  flush();return blocks;
+}
+function verify(plan,quote,claimed){
+  const q=norm(quote),c=claimed.map(norm);
+  const bl=parsePlan(plan);
+  const m=bl.filter(b=>norm(b.text)===q);
+  if(!m.length) return {ok:false,reason:"quote_not_found",found:[],bl,m};
+  if(m.some(b=>b.path.length===c.length&&b.path.every((x,i)=>x===c[i]))) return {ok:true,bl,m};
+  const fp=[...new Set(m.map(b=>JSON.stringify(b.path)))].map(s=>JSON.parse(s));
+  return {ok:false,reason:"wrong_path",found:fp,bl,m};
+}
+const PLAN_A=`# Scope
+
+## Now
+- Flip a coin and show heads or tails
+- Keep a running tally for this session
+
+## Later
+- Export results as CSV
+- Share a result link`;
+const PLAN_B=PLAN_A.replace("- Keep a running tally for this session","- Keep a running tally for this session\n- Export results as CSV").replace("\n- Export results as CSV\n- Share","\n- Share");
+const PLAN_DUP=`# Scope
+
+## Later
+- Export results as CSV
+
+# Roadmap
+
+## Later
+- Export results as CSV`;
+const PRE=[
+ ["1 · Conflict (sample)",PLAN_A,"Export results as CSV","Scope > Later"],
+ ["2 · Moved to Now",PLAN_B,"Export results as CSV","Scope > Now"],
+ ["4 · Wrong path",PLAN_A,"Export results as CSV","Scope > Now"],
+ ["5 · Partial quote",PLAN_A,"Export results","Scope > Later"],
+ ["6 · Duplicate text",PLAN_DUP,"Export results as CSV","Roadmap > Later"],
+];
+const pb=document.getElementById("pbtns"),P=document.getElementById("pplan"),Q=document.getElementById("pquote"),H=document.getElementById("ppath");
+PRE.forEach((p,i)=>{const b=document.createElement("button");b.textContent=p[0];b.onclick=()=>{P.value=p[1];Q.value=p[2];H.value=p[3];[...pb.children].forEach((x,k)=>x.setAttribute("aria-pressed",k===i));run();};pb.appendChild(b);});
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function run(){
+  const claimed=H.value.split(">").map(s=>s.trim()).filter(Boolean);
+  const r=verify(P.value,Q.value,claimed);
+  const res=document.getElementById("pres");
+  const cp=claimed.join(" › ")||"(root)";
+  if(r.ok){res.className="res y";res.innerHTML=`<span class="ok">ACCEPTED</span><br>"${esc(norm(Q.value))}"<br>Location: ${esc(cp)}<br><span class="muted">→ model's aligned/conflict verdict stands</span>`;}
+  else{res.className="res n";res.innerHTML=`<span class="amb">REJECTED · ${r.reason}</span><br>`+(r.reason==="wrong_path"?`Found under ${esc(r.found.map(p=>p.join(" › ")||"(root)").join("; "))}, not under ${esc(cp)}`:`No complete block equals this quote`)+`<br><span class="muted">→ final verdict: UNPLANNED · Review plan</span>`;}
+  document.getElementById("pblocks").innerHTML=r.bl.map(b=>{const hit=r.m.includes(b);const exact=hit&&r.ok&&b.path.join("\u0000")===claimed.join("\u0000");return `<div class="${exact?"hit":hit?"near":""}">"${esc(norm(b.text))}" <span class="muted">→ [${esc(b.path.map(x=>JSON.stringify(x)).join(", "))}]</span></div>`;}).join("")||'<div class="muted">no blocks</div>';
+}
+[P,Q,H].forEach(e=>e.addEventListener("input",run));
+pb.children[0].click();
+</script>
+</body>
+</html>

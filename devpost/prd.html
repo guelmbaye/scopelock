@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCOPELOCK PRD Review</title>
+<style>
+:root{
+  --bg:#f7f7f5;--surface:#fff;--ink:#1b1d1f;--muted:#5f656b;--line:#dcdcd7;--soft:#efefeb;
+  --green:#2f7a4f;--green-bg:#eaf4ee;--amber:#9a6a12;--amber-bg:#faf2e1;--red:#b0392f;--red-bg:#fbecea;
+  --accent:#2b4f7a;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141517;--surface:#1c1e21;--ink:#e8e8e5;--muted:#a0a5aa;--line:#33363a;--soft:#25272b;
+  --green:#6cc391;--green-bg:#1b2e23;--amber:#e0b35a;--amber-bg:#2f2717;--red:#ec8278;--red-bg:#341e1c;--accent:#8db4e2;}}
+:root[data-theme="dark"]{
+  --bg:#141517;--surface:#1c1e21;--ink:#e8e8e5;--muted:#a0a5aa;--line:#33363a;--soft:#25272b;
+  --green:#6cc391;--green-bg:#1b2e23;--amber:#e0b35a;--amber-bg:#2f2717;--red:#ec8278;--red-bg:#341e1c;--accent:#8db4e2;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans)}
+main{max-width:980px;margin:0 auto;padding:40px 16px 80px}
+h1{font-size:28px;letter-spacing:.04em;margin:0 0 4px}
+h2{font-size:18px;margin:48px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+h3{font-size:15px;margin:0 0 6px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+code,.mono{font-family:var(--mono);font-size:13px}
+.tag{display:inline-block;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--line);border-radius:4px;color:var(--muted)}
+.expand{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);padding:14px 16px;border-radius:6px;margin:20px 0}
+.expand b{font-weight:600}
+svg text{font-family:var(--sans)}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto}
+/* stepper */
+.stepper{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.stepper button{font:13px var(--sans);padding:6px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:5px;cursor:pointer}
+.stepper button[aria-pressed="true"]{border-color:var(--ink);font-weight:600}
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px}
+.mock-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.mock-head strong{letter-spacing:.06em}
+.ghost{font:12px var(--sans);border:1px solid var(--line);background:transparent;color:var(--muted);padding:3px 10px;border-radius:4px}
+.panes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pane{border:1px solid var(--line);border-radius:5px;background:var(--soft);padding:10px;font:12.5px/1.55 var(--mono);white-space:pre-wrap;min-height:170px}
+.pane-label{font:600 12px var(--sans);color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.pane-label em{font-weight:400;font-style:normal}
+.hl{background:color-mix(in srgb,var(--accent) 18%,transparent);border-radius:2px}
+.add{color:var(--green)}
+.cta{margin:12px 0;font:600 14px var(--sans);background:var(--ink);color:var(--bg);border:0;padding:8px 16px;border-radius:5px}
+.result{border:1px solid var(--line);border-radius:5px;padding:14px;min-height:96px}
+.verdict{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.verdict .word{font:700 15px var(--mono);letter-spacing:.08em}
+.verdict .act{font:600 13px var(--sans);padding:1px 8px;border-radius:4px}
+.v-al{border-left:3px solid var(--green)} .v-al .word{color:var(--green)} .v-al .act{background:var(--green-bg);color:var(--green)}
+.v-co{border-left:3px solid var(--red)} .v-co .word{color:var(--red)} .v-co .act{background:var(--red-bg);color:var(--red)}
+.v-un{border-left:3px solid var(--amber)} .v-un .word{color:var(--amber)} .v-un .act{background:var(--amber-bg);color:var(--amber)}
+.ev{margin-top:10px;font:12.5px/1.6 var(--mono)}
+.ev .k{color:var(--muted)}
+.ev.secondary{color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.caption{margin-top:10px;color:var(--muted);font-size:14px}
+/* states/features */
+details{background:var(--surface);border:1px solid var(--line);border-radius:6px;margin:8px 0}
+summary{cursor:pointer;padding:10px 14px;font-weight:600}
+details > div{padding:0 14px 12px}
+ul.ac{list-style:none;padding:0;margin:8px 0 0}
+ul.ac li{padding-left:22px;position:relative;margin:4px 0}
+ul.ac li::before{content:"";position:absolute;left:2px;top:6px;width:11px;height:11px;border:1.5px solid var(--muted);border-radius:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px}
+.box ul{margin:6px 0 0;padding-left:18px}
+.feedback{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.open{border-left:3px solid var(--amber)}
+@media (max-width:700px){.panes,.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<span class="tag">PRD · approved · review layer</span>
+<h1>SCOPELOCK</h1>
+<p class="muted">Checks whether one proposed change belongs to the planned product, and shows the verified planning evidence behind the verdict. Canonical source: <code>devpost/prd.md</code>.</p>
+
+<div class="expand">
+  <b>What got sharper since scope.</b> Scope said a quote must sit "under the section the model claims." The PRD now defines that section as the <b>full heading path</b> (such as <code>Scope &gt; POC Boundary &gt; Later</code>). Rejected evidence is shown, not hidden, and system failure is kept separate from the <b>Unplanned</b> verdict.
+</div>
+
+<h2>The core journey</h2>
+<div class="diagram">
+<svg viewBox="0 0 900 190" width="100%" role="img" aria-label="Journey: open with sample, check, Conflict, edit Later to Now, check again, Aligned">
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <g style="color:var(--muted)" stroke="currentColor" stroke-width="1.4" fill="none" marker-end="url(#ar)">
+    <line x1="132" y1="70" x2="160" y2="70"/><line x1="282" y1="70" x2="310" y2="70"/>
+    <line x1="432" y1="70" x2="460" y2="70"/><line x1="582" y1="70" x2="610" y2="70"/><line x1="732" y1="70" x2="760" y2="70"/>
+  </g>
+  <g font-size="13" text-anchor="middle">
+    <rect x="12" y="40" width="120" height="60" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="72" y="66" fill="var(--ink)" font-weight="600">Open</text><text x="72" y="84" fill="var(--muted)" font-size="11">sample preloaded</text>
+    <rect x="162" y="40" width="120" height="60" rx="6" fill="var(--surface)" stroke="var(--ink)"/>
+    <text x="222" y="66" fill="var(--ink)" font-weight="600">Check</text><text x="222" y="84" fill="var(--muted)" font-size="11">Alignment</text>
+    <rect x="312" y="40" width="120" height="60" rx="6" fill="var(--red-bg)" stroke="var(--red)"/>
+    <text x="372" y="66" fill="var(--red)" font-weight="700" font-family="var(--mono)">CONFLICT</text><text x="372" y="84" fill="var(--red)" font-size="11">Stop · Scope &gt; Later</text>
+    <rect x="462" y="40" width="120" height="60" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="522" y="66" fill="var(--ink)" font-weight="600">Edit one line</text><text x="522" y="84" fill="var(--muted)" font-size="11">Later → Now</text><text x="522" y="118" fill="var(--muted)" font-size="11">result → "Inputs changed"</text>
+    <rect x="612" y="40" width="120" height="60" rx="6" fill="var(--surface)" stroke="var(--ink)"/>
+    <text x="672" y="66" fill="var(--ink)" font-weight="600">Check</text><text x="672" y="84" fill="var(--muted)" font-size="11">same diff</text>
+    <rect x="762" y="40" width="126" height="60" rx="6" fill="var(--green-bg)" stroke="var(--green)"/>
+    <text x="825" y="66" fill="var(--green)" font-weight="700" font-family="var(--mono)">ALIGNED</text><text x="825" y="84" fill="var(--green)" font-size="11">Proceed · Scope &gt; Now</text>
+  </g>
+  <text x="450" y="150" text-anchor="middle" font-size="13" fill="var(--muted)">Same diff, same quoted line. Only its verified heading path changed.</text>
+  <text x="450" y="172" text-anchor="middle" font-size="12" fill="var(--muted)">Load sample restores the canonical sample at any point.</text>
+</svg>
+</div>
+
+<h2>Walk the screen</h2>
+<p class="muted">Step through the journey. The mock is a sketch of the information, not a visual design.</p>
+<div class="stepper" id="stepper"></div>
+<div class="mock">
+  <div class="mock-head"><strong>SCOPELOCK</strong><button class="ghost" tabindex="-1">Load sample</button></div>
+  <div class="panes">
+    <div><div class="pane-label">Planning contract</div><div class="pane" id="plan"></div></div>
+    <div><div class="pane-label" id="difflabel"></div><div class="pane" id="diff"></div></div>
+  </div>
+  <button class="cta" tabindex="-1">Check Alignment</button>
+  <div class="pane-label">Product alignment</div>
+  <div class="result" id="result"></div>
+</div>
+<p class="caption" id="caption"></p>
+
+<h2>Features and acceptance criteria</h2>
+<details open><summary>Sample Preload and Load Sample</summary><div>
+  <p>The sample is visible on first open. No check runs until the user presses Check Alignment. Load sample is secondary and sits near the workspace heading.</p>
+  <ul class="ac"><li>First load: both panes show the sample, and the result reads "Ready to check".</li><li>Load sample restores both panes exactly and resets the result.</li><li>Load sample is visually secondary to Check Alignment.</li></ul>
+</div></details>
+<details><summary>Alignment Check</summary><div>
+  <p>One verdict per check: Aligned · Proceed, Unplanned · Review plan, or Conflict · Stop, plus a short explanation, labeled as product alignment.</p>
+  <ul class="ac"><li>Unedited sample → Conflict · Stop.</li><li>Line moved Later → Now, same diff → Aligned · Proceed.</li><li>Every result has a verdict word, an action, and an explanation.</li></ul>
+</div></details>
+<details><summary>Evidence Verification</summary><div>
+  <p>Exactly one proposed evidence item: an exact quote plus its full heading path. Both must verify, otherwise the result falls back to Unplanned with a secondary Evidence check note.</p>
+  <ul class="ac"><li>Aligned and Conflict always show a quote found verbatim under its stated path.</li><li>Wrong path → Unplanned plus a note naming the claimed location and where the quote actually is.</li><li>Quote not found → Unplanned plus a note saying the quote wasn't found.</li><li>Unrelated diff → Unplanned plus "No relevant planning decision was found for this change."</li></ul>
+</div></details>
+<details><summary>Technical Quality Labeling</summary><div>
+  <p>No fake test, build, or CI signals. The sample diff is framed as known-working. Any other diff is "Technical quality: not evaluated".</p>
+  <ul class="ac"><li>Sample label shows only while the diff matches the sample.</li><li>Edited diff → "Technical quality: not evaluated".</li><li>No test, build, or CI status anywhere.</li></ul>
+</div></details>
+
+<h2>States</h2>
+<div class="stepper" id="states"></div>
+<div class="result" id="stateview"></div>
+<p class="caption" id="statecap"></p>
+
+<h2>Now vs deferred</h2>
+<div class="grid2">
+  <div class="box"><h3>Building now</h3><ul>
+    <li>One page: plan pane, diff pane, Check Alignment, result</li>
+    <li>Preloaded canonical sample and Load sample</li>
+    <li>One verdict, explanation, and one evidence item</li>
+    <li>Quote plus full-heading-path verification, with Unplanned fallback</li>
+    <li>Technical-quality labeling</li>
+    <li>Checking (inputs locked), outdated, empty-input, and check-failed states</li></ul></div>
+  <div class="box"><h3>Deferred / non-goals</h3><ul>
+    <li>Mixed or multi-change diffs</li>
+    <li>Multiple evidence items or ranking</li>
+    <li>Repo, CLI, or file loading; PR, CI, IDE, or agent hooks</li>
+    <li>Saving inputs or history</li>
+    <li>Code review, bug or security checks, any tech-quality indicator</li>
+    <li>PM features, chat, conversational UI</li></ul></div>
+</div>
+
+<h2>Resolved in review</h2>
+<div class="box"><b>Editing after a verdict.</b> The verdict goes outdated immediately ("Inputs changed — check again"), with no auto-rerun. Inputs are locked while a check runs. There are no open product questions.</div>
+<h2>Build-time copy detail</h2>
+<div class="box"><b>Rejection wording.</b> The behavior is fixed: the note must distinguish "quote not found" from "quote found outside the claimed heading path" (and name where it was found). Only the exact copy is left for the build.</div>
+
+<h2>Honest read</h2>
+<div class="feedback">The journey is complete and closes cleanly on the flip test. Every behavior has checkable criteria you can verify by looking at the screen. The now/deferred split is strong: one evidence item and no technical signal keep the proof narrow. The what-ifs are resolved: "check failed" is separate from "Unplanned", and stale verdicts can't survive an edit.</div>
+</main>
+
+<script>
+const PLAN_LATER=`# Scope
+
+## Now
+- Paste a plan and a diff
+- Show one verdict with evidence
+
+## Later
+- <span class="hl">Export results as CSV</span>`;
+const PLAN_NOW=`# Scope
+
+## Now
+- Paste a plan and a diff
+- Show one verdict with evidence
+- <span class="hl">Export results as CSV</span>
+
+## Later
+`;
+const DIFF=`+ function exportCsv(results) {
++   const rows = results.map(toRow);
++   download("results.csv", rows.join("\\n"));
++ }
++ &lt;button onClick={exportCsv}&gt;Export CSV&lt;/button&gt;`.replace(/^\+.*$/gm,m=>`<span class="add">${m}</span>`);
+const SAMPLE_LABEL=`<span>Proposed change</span><em>Sample scenario · known-working change</em>`;
+const v=(cls,word,act,expl,ev)=>`<div class="${cls}" style="padding-left:12px"><div class="verdict"><span class="word">${word}</span><span class="act">${act}</span></div><div>${expl}</div>${ev||""}</div>`;
+const evOk=loc=>`<div class="ev"><div class="k">Evidence</div>"Export results as CSV"<br><span class="k">Location:</span> ${loc}</div>`;
+const steps=[
+ {n:"1 · Open",plan:PLAN_LATER,res:`<span class="muted">Ready to check</span>`,cap:"The sample is preloaded and the result is neutral. The user still has to press Check Alignment."},
+ {n:"2–3 · Check → Conflict",plan:PLAN_LATER,res:v("v-co","CONFLICT","Stop","This change adds CSV export, which the plan explicitly defers to Later.",evOk("Scope &gt; Later")),cap:"One verified evidence item: the exact quote plus its full heading path."},
+ {n:"4 · Edit Later → Now",plan:PLAN_NOW,res:`<div style="font-weight:600">Inputs changed — check again</div><div class="muted">The previous result no longer applies to the current inputs.</div>`,cap:"Only the plan changes. The old Conflict disappears at once, so a stale verdict never looks current. Nothing reruns automatically."},
+ {n:"5–6 · Check → Aligned",plan:PLAN_NOW,res:v("v-al","ALIGNED","Proceed","This change implements CSV export, which the plan lists under Now.",evOk("Scope &gt; Now")),cap:"Same diff, same quote, different verified location, different verdict."}
+];
+const sEl=document.getElementById("stepper");
+function show(i){const s=steps[i];
+ document.getElementById("plan").innerHTML=s.plan;document.getElementById("diff").innerHTML=DIFF;
+ document.getElementById("difflabel").innerHTML=SAMPLE_LABEL;
+ document.getElementById("result").innerHTML=s.res;document.getElementById("caption").textContent=s.cap;
+ [...sEl.children].forEach((b,j)=>b.setAttribute("aria-pressed",j===i));}
+steps.forEach((s,i)=>{const b=document.createElement("button");b.textContent=s.n;b.onclick=()=>show(i);sEl.appendChild(b)});
+show(0);
+
+const states=[
+ {n:"Unplanned · no evidence",h:v("v-un","UNPLANNED","Review plan","No verified planning decision supports or conflicts with this change.",`<div class="ev"><div class="k">Evidence</div>No relevant planning decision was found for this change.</div>`),c:"Unrelated diff. Same primary verdict as the rejected case."},
+ {n:"Unplanned · rejected evidence",h:v("v-un","UNPLANNED","Review plan","No verified planning decision supports or conflicts with this change.",`<div class="ev secondary"><div>Evidence check</div>Proposed quote: "Export results as CSV"<br>Claimed location: Scope &gt; Later<br>Rejected: quote found under Scope &gt; Now, not under the claimed location.</div>`),c:"The model suggested the evidence, and SCOPELOCK rejected it. The note is secondary provenance, not a fourth verdict."},
+ {n:"Checking",h:`<div style="font-weight:600">Checking…</div><div class="muted">Both panes, Load sample, and Check Alignment are disabled until the check completes.</div>`,c:"The result in flight always belongs to the snapshot that was checked."},
+ {n:"Outdated",h:`<div style="font-weight:600">Inputs changed — check again</div><div class="muted">The previous result no longer applies to the current inputs.</div>`,c:"Any non-empty edit after a completed check. No auto-rerun and no result history."},
+ {n:"Empty input",h:`<div class="muted">Not checked</div><div class="ev" style="color:var(--red)">Inline on the pane: Planning contract required / Proposed change required</div>`,c:"No model call and no verdict. A previous verdict is cleared when an input becomes empty. This takes precedence over Outdated."},
+ {n:"Check failed",h:`<div style="font-weight:600">Check failed</div><div class="muted">SCOPELOCK couldn't complete the analysis. Your inputs are unchanged.</div><button class="ghost" style="margin-top:8px" tabindex="-1">Try again</button>`,c:"A model/API failure or unusable response. It is not a verdict and is never shown as Unplanned."},
+ {n:"Own diff label",h:`<div class="pane-label"><span>Proposed change</span><em>Technical quality: not evaluated</em></div>`,c:"Once the diff differs from the sample. No fake tests, build, or CI signals anywhere."}
+];
+const stEl=document.getElementById("states");
+function showState(i){document.getElementById("stateview").innerHTML=states[i].h;document.getElementById("statecap").textContent=states[i].c;
+ [...stEl.children].forEach((b,j)=>b.setAttribute("aria-pressed",j===i));}
+states.forEach((s,i)=>{const b=document.createElement("button");b.textContent=s.n;b.onclick=()=>showState(i);stEl.appendChild(b)});
+showState(0);
+</script>
+</body>
+</html>
